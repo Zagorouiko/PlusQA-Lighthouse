@@ -1,0 +1,3 @@
+1. Test the gpt and slack calls with a small amount of data
+2. Filter reviews a bit more - clean up any "/n" and spacing
+2. Maybe try running the infinite scroll to the bottom and grabbing the reviews that way?

@@ -1,0 +1,40 @@
+{
+  "name": "scraper",
+  "version": "1.0.0",
+  "bin": "CLI/index.js",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "pkg": {
+    "output": "dist",
+    "targets": [
+      "node18-win-x64"
+    ]
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@octokit/auth-basic": "^1.4.8",
+    "@octokit/rest": "^20.0.1",
+    "axios": "^1.4.0",
+    "chalk": "^3.0.0",
+    "chalk-animation": "^1.6.0",
+    "clear": "^0.1.0",
+    "clui": "^0.3.6",
+    "configstore": "^6.0.0",
+    "dotenv": "^16.3.1",
+    "figlet": "^1.6.0",
+    "fs": "^0.0.1-security",
+    "inquirer": "^8.2.5",
+    "lodash": "^4.17.21",
+    "minimist": "^1.2.8",
+    "openai": "^3.3.0",
+    "pkg": "5.8.1",
+    "puppeteer": "^20.7.4",
+    "simple-git": "^3.19.1",
+    "touch": "^3.1.0"
+  }
+}
