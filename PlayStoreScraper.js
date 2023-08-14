@@ -1,12 +1,11 @@
-const api = require("./API-requests")
+const api = require("./API-requests");
+const helpers = require("./helpers");
 
 const scraperObject = {
-  // url: 'https://play.google.com/store/apps/details?id=com.participantapp',
   async scraper(browser, appUrls) {
     for (i = 0; i < appUrls.length; i++) {
       let page = await browser.newPage();
       console.log(`Navigating to ${appUrls[i].url}...`);
-      // Navigate to the selected page
       await page.goto(appUrls[i].url);
 
       // Wait for the reviews section to load
@@ -21,59 +20,95 @@ const scraperObject = {
           await linkElements[i].click();
         }
       }
-
       // Wait for the modal to load
-      await page.waitForSelector(
-        "button.VfPpkd-LgbsSe.VfPpkd-LgbsSe-OWXEXe-dgl2Hf.ksBjEc.lKxP2d.LQeN7.aLey0c"
-      );
-      await page.waitForSelector(".jgIq1");
+      await page.waitForSelector(".VfPpkd-cnG4Wd");
 
-      // Filter reviews by 3 stars or less (evaluate)
-      // Click rating dropdown
-      // let dropdownElements = await page.$$(".kW9Bj");
+      async function grabReviews(page) { 
+        const reviews = await page.evaluate(() => {
+          const reviewElements = document.querySelectorAll(".RHo1pe");
+          const ratingElements = document.querySelectorAll(".iXRFPc");
+          const dateElements = document.querySelectorAll(".bp9Aid");
+          let reviews = [];      
+          let rating
+          let date
+          let review
 
-      // for (let i = 0; i < dropdownElements.length; i++) {
-      //   let text = await page.evaluate((el) => el.innerText, dropdownElements[i]);
-      //   if (text.indexOf("Star rating") > -1) {         
-      //     console.log("clicking dropdown")
-      //     await dropdownElements[i].click();
-      //   }
-      // }
-      // await page.waitForSelector(".JPdR6b.e5Emjc.ah7Sve.qjTEB");
+          // First 3 reviews repeat on the front page so iteration must be offset
+          for (n = 3; n < reviewElements.length; n++) {
+            rating = ratingElements[n].getAttribute("aria-label");
+            date = dateElements[n].innerText;
 
-      // // Click star rating
-      // await page.waitForSelector(".z80M1.NmX0eb.KnEF3e");
-      // let starElements = await page.$$(".z80M1.NmX0eb.KnEF3e");
+            if (n < 6) {
+              review = reviewElements[n-3].querySelector(".h3YV2d").innerText;
+            } else {
+              review = reviewElements[n-3].querySelector(".h3YV2d").innerText;
+            }
 
-      // for (let i = 0; i < starElements.length; i++) {
-      //   let text = await page.evaluate((el) => el.innerText, starElements[i]);
-      //   if (text.indexOf("3-star") > -1) {
-      //     console.log(text.indexOf("3-star"))
-      //     console.log("clicking star rating")
-      //     // await page.click(starElements[i])      
-      //     await starElements[i].click();
-      //   }
-      // }
-      // let n = await page.$$("#filterBy_3")
-      // await page.waitForSelector(n);
+            let obj = {
+              rating: rating,
+              date: date,
+              review: review,
+            };
 
-      const reviews = await page.evaluate(() => {
-        const reviewElements = document.querySelectorAll(".RHo1pe");
-        const reviews = [];
+            reviews.push(obj);
+          }
+          return reviews
+        });
 
-        for (const element of reviewElements) {
-          const content = element.querySelector(".h3YV2d").innerText;
-          let obj = {
-            review: content,
-          };
-          reviews.push(obj);
+      // Filter by year
+      const filteredArray = reviews.filter(function (el) { 
+        if (el.date.includes(" 2023")) {
+        return el
         }
+      })
 
-        return reviews;
-      });
-      // console.log(reviews);
-      // const gptResponse = await api.chatGPTCall(appUrls[i], reviews)
-      // await api.messsageSlack(gptResponse)
+      // Filter by rating
+      const finalFilteredArray = filteredArray.filter(function (el) { 
+        if (el.rating.includes("3") || el.rating.includes("2") || el.rating.includes("1")) {
+        return el
+        }
+      })
+
+      let finalReviews = []
+      for (z = 0; z < finalFilteredArray.length; z++) { 
+        let obj = {
+          review: finalFilteredArray[z].review,
+        };
+        finalReviews.push(obj);
+      }
+      const gptResponse = await api.chatGPTCall(appUrls[i], finalReviews)
+      helpers.writeReviewstoFile(gptResponse, 'Android', appUrls[i].name)
+      await api.messsageSlack(gptResponse)
+    }
+
+      const targetDivClassName = "fysCi";
+      const scrollTargetDivToBottom = async () => {
+        await page.evaluate(targetDivClassName => {
+          const targetDiv = document.querySelector(`.${targetDivClassName}`);
+          if (targetDiv) {
+            targetDiv.scrollTop = targetDiv.scrollHeight;
+          }
+        }, targetDivClassName);
+      };
+    
+      // Scroll down the infinite loading modal
+      let previousHeight = 0;
+      let currentHeight = await page.evaluate(targetDivClassName => {
+        const targetDiv = document.querySelector(`.${targetDivClassName}`);
+        return targetDiv ? targetDiv.scrollHeight : 0;
+      }, targetDivClassName);
+    
+      while (previousHeight !== currentHeight) {
+        await scrollTargetDivToBottom();
+        await page.waitForTimeout(1000); // Wait for a brief moment for new content to load
+    
+        previousHeight = currentHeight;
+        currentHeight = await page.evaluate(targetDivClassName => {
+          const targetDiv = document.querySelector(`.${targetDivClassName}`);
+          return targetDiv ? targetDiv.scrollHeight : 0;
+        }, targetDivClassName);
+      }
+      await grabReviews(page)
     }
   },
 };

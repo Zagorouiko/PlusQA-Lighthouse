@@ -84,6 +84,7 @@ const run = async () => {
 
     if (answers.appUrls === 'specific' && answers.OS === 'iOS') {    
       let appObject = [{
+        OS: answers.OS,
         id: answers.specificID,
         name: answers.specificName,     
       }] 
@@ -93,6 +94,7 @@ const run = async () => {
 
     if (answers.appUrls === 'specific' && answers.OS === 'Android') {
       let appObject = [{
+        OS: answers.OS,
         url: `https://play.google.com/store/apps/details?id=com.${answers.specificID}`,
         name: answers.specificName,     
       }] 

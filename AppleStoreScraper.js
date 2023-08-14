@@ -1,5 +1,6 @@
 const axios = require("axios");
 const api = require('./API-requests')
+const helpers = require("./helpers");
 
 const scraperObject = {
   async scraper(appUrls) {
@@ -62,7 +63,8 @@ const scraperObject = {
     // }
 
     const gptResponse = await api.chatGPTCall(appUrls[i], reviewObject)
-    api.messsageSlack(gptResponse)
+    helpers.writeReviewstoFile(gptResponse, 'iOS', appUrls[i].name)
+    await api.messsageSlack(gptResponse)
 
     // Clear reviews
     reviewObject = []
