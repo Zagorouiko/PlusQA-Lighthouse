@@ -59,7 +59,7 @@ const scraperObject = {
     // FOR TESTING
     // const reducedReviews = []
     // for (k = 0; k < 8; k++) { 
-    //   reducedReviews.push(reviewObject[i])
+    //   reducedReviews.push(reviewObject[k])
     // }
 
     const gptResponse = await api.chatGPTCall(appUrls[i], reviewObject)

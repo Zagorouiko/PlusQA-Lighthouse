@@ -41,7 +41,7 @@ async function chatGPTCall(app, reviews) {
         I've included the app name, operating system, and reviews. Specify the operating system and app name at the top of the response.
         Give me specific areas in the app to focus testing on and specific problems based on the reviews provided, also list the specific issue the users found. 
         Also provide specific actionable steps for manually testing those areas.
-        The apps operating system is: ${app.OS} and the app name is: ${app.name} The reviews in JSON format are: ${reviews}`
+        The apps operating system is: ${app.OS} and the app name is: ${app.name} The reviews are: ${reviews}`
       }],
       })
     } catch (error) {

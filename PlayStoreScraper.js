@@ -14,10 +14,10 @@ const scraperObject = {
       // Open/click the "See all Reviews" modal
       let linkElements = await page.$$(".VfPpkd-vQzf8d");
 
-      for (let i = 0; i < linkElements.length; i++) {
-        let text = await page.evaluate((el) => el.innerText, linkElements[i]);
+      for (let j = 0; j < linkElements.length; j++) {
+        let text = await page.evaluate((el) => el.innerText, linkElements[j]);
         if (text.indexOf("See all reviews") > -1) {
-          await linkElements[i].click();
+          await linkElements[j].click();
         }
       }
       // Wait for the modal to load
@@ -43,6 +43,8 @@ const scraperObject = {
             } else {
               review = reviewElements[n-3].querySelector(".h3YV2d").innerText;
             }
+
+            if (!review || !rating || !date) { continue }
 
             let obj = {
               rating: rating,
@@ -76,7 +78,16 @@ const scraperObject = {
         };
         finalReviews.push(obj);
       }
-      const gptResponse = await api.chatGPTCall(appUrls[i], finalReviews)
+
+    // FOR TESTING
+    const reducedReviews = []
+    if (finalReviews.length > 1000) { 
+      for (k = 0; k < 5000; k++) { 
+        reducedReviews.push(finalReviews[k])
+      }
+    }
+
+      const gptResponse = await api.chatGPTCall(appUrls[i], reducedReviews)
       helpers.writeReviewstoFile(gptResponse, 'Android', appUrls[i].name)
       await api.messsageSlack(gptResponse)
     }
