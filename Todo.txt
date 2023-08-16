@@ -1,1 +1,0 @@
-1. Save gpt response to a file to feed back into the next call to stop redundency
