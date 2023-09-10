@@ -4,22 +4,44 @@ const fs = require("fs");
 const openai = require('openai')
 require('dotenv').config()
 
-const configuration = new openai.Configuration({
-    organization: process.env.OPENAI_ORGANIZATION_ID,
-    apiKey: process.env.OPENAI_API_KEY,
-  });
-  const openaiInstance = new openai.OpenAIApi(configuration);
+// RETEST
+fs.readFile("./CLI/config.json",  (err, data) => {
+  if (err) {
+    console.log(err)
+    return 
+  }
+  if (data) {
+    const OPENAI_API_KEY = JSON.parse(data).OPENAI_API_KEY
+    const OPENAI_ORGANIZATION_ID = JSON.parse(data).OPENAI_ORGANIZATION_ID
 
+    const configuration = new openai.Configuration({
+      organization: OPENAI_ORGANIZATION_ID,
+      apiKey: OPENAI_API_KEY,
+    });
+    const openaiInstance = new openai.OpenAIApi(configuration);
+  }
+ })
+
+// RETEST
 function messsageSlack(gptResponse) {
-    const options = {
+  fs.readFile("./CLI/config.json",  (err, data) => { 
+    if (err) {
+      console.log("No/incorrect Slack API key")
+      return
+    }
+    if (data) {
+      const SLACK_API_KEY = JSON.parse(data).SLACK_API_KEY
+      const SLACK_CHANNEL_ID = JSON.parse(data).SLACK_CHANNEL_ID
+
+      const options = {
         headers: {
           Authorization:
-            `Bearer ${process.env.SLACK_API_KEY}`,
+            `Bearer ${SLACK_API_KEY}`,
         },
       };
     
       axios.post('https://slack.com/api/chat.postMessage', {
-          channel: process.env.SLACK_API_CHANNEL,
+          channel: SLACK_CHANNEL_ID,
           text: gptResponse
       }, options)
       .then((response) => {
@@ -27,6 +49,8 @@ function messsageSlack(gptResponse) {
       }, (error) => {
       console.log(error);
       });
+    }
+  })
 }
 
 async function chatGPTCall(app, reviews) {
