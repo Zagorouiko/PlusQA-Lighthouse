@@ -3,14 +3,12 @@ const api = require('./API-requests')
 const helpers = require("./helpers");
 
 const scraperObject = {
-  async scraper(appUrls) {
-    for (i = 0; i < appUrls.length; i++) {   
+  async scraper(appUrl) {
       let entriesArray = [];
       let concattedArray = [];
       for (j = 0; j < 10; j++) {
-        // Make api call to https://itunes.apple.com/us/rss/customerreviews/page=1/id=1164603213/sortby=mostrecent/json
         let jsonFeed = await axios.get(
-          `https://itunes.apple.com/us/rss/customerreviews/page=${j + 1}/id=${appUrls[i].id}/sortby=mostrecent/json`);
+          `https://itunes.apple.com/us/rss/customerreviews/page=${j + 1}/id=${appUrl.url}/sortby=mostrecent/json`);
 
         if (j === 0) {
           entriesArray = jsonFeed.data.feed.entry;
@@ -62,14 +60,13 @@ const scraperObject = {
     //   reducedReviews.push(reviewObject[k])
     // }
 
-    const gptResponse = await api.chatGPTCall(appUrls[i], reviewObject)
-    helpers.writeReviewstoFile(gptResponse, 'iOS', appUrls[i].name)
+    const gptResponse = await api.chatGPTCall(appUrl, reviewObject)
+    helpers.writeReviewstoFile(gptResponse, 'iOS', appUrl.name)
     await api.messsageSlack(gptResponse)
 
     // Clear reviews
     reviewObject = []
     }
-  }
 };
 
 module.exports = scraperObject;

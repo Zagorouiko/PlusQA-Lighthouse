@@ -24,15 +24,4 @@ async function scrapeAll(appUrls, OS){
 	}
 }
 
-async function scrapeBothOS(iOSApps, AndroidApps) {
-		try{
-			let browser = await browserObject.startBrowser();
-			await iOSScraper.scraper(iOSApps);
-			await androidScraper.scraper(browser, AndroidApps);
-		}
-		catch(err){
-			console.log("Could not resolve the browser instance => ", err);
-		}
-}
-
-module.exports = { scrapeAll, scrapeBothOS }
+module.exports = { scrapeAll }

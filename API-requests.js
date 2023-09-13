@@ -4,27 +4,11 @@ const fs = require("fs");
 const openai = require('openai')
 require('dotenv').config()
 
-// RETEST
-fs.readFile("./CLI/config.json",  (err, data) => {
-  if (err) {
-    console.log(err)
-    return 
-  }
-  if (data) {
-    const OPENAI_API_KEY = JSON.parse(data).OPENAI_API_KEY
-    const OPENAI_ORGANIZATION_ID = JSON.parse(data).OPENAI_ORGANIZATION_ID
 
-    const configuration = new openai.Configuration({
-      organization: OPENAI_ORGANIZATION_ID,
-      apiKey: OPENAI_API_KEY,
-    });
-    const openaiInstance = new openai.OpenAIApi(configuration);
-  }
- })
 
 // RETEST
 function messsageSlack(gptResponse) {
-  fs.readFile("./CLI/config.json",  (err, data) => { 
+  fs.readFile(__dirname + "/config.json",  (err, data) => { 
     if (err) {
       console.log("No/incorrect Slack API key")
       return
@@ -54,9 +38,21 @@ function messsageSlack(gptResponse) {
 }
 
 async function chatGPTCall(app, reviews) {
-
+    let openaiInstance
     let gpt3Response
+    let response
     try {
+      const data = await fs.promises.readFile(__dirname + "/config.json")
+
+      const OPENAI_API_KEY = JSON.parse(data).OPENAI_API_KEY
+      const OPENAI_ORGANIZATION_ID = JSON.parse(data).OPENAI_ORGANIZATION_ID
+
+      const configuration = new openai.Configuration({
+        organization: OPENAI_ORGANIZATION_ID,
+        apiKey: OPENAI_API_KEY,
+      });
+      openaiInstance = new openai.OpenAIApi(configuration);
+
       gpt3Response = await openaiInstance.createChatCompletion({
         model: "gpt-3.5-turbo",
         messages: [{role: "user", content: 
@@ -71,7 +67,13 @@ async function chatGPTCall(app, reviews) {
     } catch (error) {
       console.log(error)
     }
+
+    if (gpt3Response) {
+    // console.log("gpt response", gpt3Response.data.choices[0].message.content)
     return gpt3Response.data.choices[0].message.content
+  } else {
+    return "Error in GPT Response"
+  }
 }
 
 module.exports = { messsageSlack, chatGPTCall }

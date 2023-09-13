@@ -7,11 +7,6 @@ function runScraper(appUrls, OS) {
         scraper.scrapeAll(appUrls, OS);
     } if (OS === 'Android') {
         scraper.scrapeAll(appUrls, OS);
-    } if (OS === 'Both') {
-        const splitUrls = helpers.splitAppUrls(appUrls)
-        let iOSApps = splitUrls[0]
-        let AndroidApps = splitUrls[1]
-        scraper.scrapeBothOS(iOSApps, AndroidApps);
     } 
 }
 

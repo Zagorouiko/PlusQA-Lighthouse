@@ -2,11 +2,9 @@ const api = require("./API-requests");
 const helpers = require("./helpers");
 
 const scraperObject = {
-  async scraper(browser, appUrls) {
-    for (i = 0; i < appUrls.length; i++) {
+  async scraper(browser, appUrl) {
       let page = await browser.newPage();
-      console.log(`Navigating to ${appUrls[i].url}...`);
-      await page.goto(appUrls[i].url);
+      await page.goto(appUrl.url);
 
       // Wait for the reviews section to load
       await page.waitForSelector(".tU8Y5c");
@@ -86,10 +84,9 @@ const scraperObject = {
         reducedReviews.push(finalReviews[k])
       }
     }
-
-      const gptResponse = await api.chatGPTCall(appUrls[i], reducedReviews)
-      helpers.writeReviewstoFile(gptResponse, 'Android', appUrls[i].name)
-      await api.messsageSlack(gptResponse)
+      const gptResponse = await api.chatGPTCall(appUrl, reducedReviews)
+      helpers.writeReviewstoFile(gptResponse, 'Android', appUrl.name)
+      // await api.messsageSlack(gptResponse)
     }
 
       const targetDivClassName = "fysCi";
@@ -120,7 +117,6 @@ const scraperObject = {
         }, targetDivClassName);
       }
       await grabReviews(page)
-    }
   },
 };
 
